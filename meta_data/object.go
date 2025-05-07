@@ -1,6 +1,7 @@
 package meta_data
 
 import (
+	"fmt"
 	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/google/uuid"
 	"time"
@@ -31,4 +32,8 @@ type (
 
 func (o *Object) GetAll() (objects []*ObjectMetaData, err error) {
 	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata")
+}
+
+func (o *Object) GetObjectByName(objectName string) (object *ObjectMetaData, err error) {
+	return http.Get[*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata?object_name=%s", objectName))
 }
