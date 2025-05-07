@@ -1,7 +1,7 @@
 package meta_data
 
 import (
-	"alto-III-go/http"
+	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/google/uuid"
 	"time"
 )

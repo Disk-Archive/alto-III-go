@@ -1,7 +1,7 @@
 package alto
 
 import (
-	"alto-III-go/meta_data"
+	"github.com/Disk-Archive/alto-III-go/meta_data"
 	"net"
 )
 
