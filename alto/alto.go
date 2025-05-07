@@ -1,17 +1,15 @@
 package alto
 
-import "time"
+import (
+	"alto-III-go/meta_data"
+	"net"
+)
 
 type AltoIII struct {
-	TcpConnection
-}
+	IpAddress net.IP
+	Port      int
 
-func (a *AltoIII) GetSystemName() (altoName string) {
-	altoName, _ = a.sendTcp("get|system_name", time.Second*5)
-	return altoName
-}
+	IgnoreSslErrors bool
 
-func (a *AltoIII) GetSerialNumber() (altoSerial string) {
-	altoSerial, _ = a.sendTcp("get|system_serial", time.Second*5)
-	return altoSerial
+	MetaData *meta_data.MetaData
 }
