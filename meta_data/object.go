@@ -8,6 +8,7 @@ import (
 
 type (
 	Object struct {
+		Hostname string
 	}
 
 	ObjectMetaData struct {
@@ -29,5 +30,5 @@ type (
 )
 
 func (o *Object) GetAll() (objects []*ObjectMetaData, err error) {
-	return http.Get[[]*ObjectMetaData]("/api/v1/object/object_metadata")
+	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata")
 }

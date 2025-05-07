@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -9,18 +10,29 @@ import (
 	"net/http"
 )
 
-func Get[T any](url string) (responseData T, err error) {
+func Get[T any](hostname, url string) (responseData T, err error) {
+	return request[T](hostname, url, "GET", "application/octet-stream", nil, true)
+}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://%s%s", "192.168.0.98", url), nil)
+func Delete[T any](hostname, url string) (responseData T, err error) {
+	return request[T](hostname, url, "DELETE", "application/octet-stream", nil, true)
+}
+
+func Post[T any](hostname, url string, data []byte) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/octet-stream", data, true)
+}
+
+func request[T any](hostname, url, method, contentType string, data []byte, insecure bool) (responseData T, err error) {
+	req, err := http.NewRequest(method, fmt.Sprintf("https://%s%s", hostname, url), bytes.NewReader(data))
 	if err != nil {
 		return
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
 		},
 	}
 
@@ -35,11 +47,11 @@ func Get[T any](url string) (responseData T, err error) {
 		return
 	}
 
+	// ToDo: Need to handle more http statuses
 	if resp.StatusCode == http.StatusOK {
 		_ = json.Unmarshal(body, &responseData)
 		return responseData, nil
 	}
 
 	return responseData, errors.New("agggghhh panic")
-
 }
