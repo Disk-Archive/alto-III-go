@@ -19,7 +19,7 @@ func Delete[T any](hostname, url string) (responseData T, err error) {
 }
 
 func Post[T any](hostname, url string, data []byte) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/octet-stream", data, true)
+	return request[T](hostname, url, "POST", "application/json", data, true)
 }
 
 func request[T any](hostname, url, method, contentType string, data []byte, insecure bool) (responseData T, err error) {
@@ -48,10 +48,9 @@ func request[T any](hostname, url, method, contentType string, data []byte, inse
 	}
 
 	// ToDo: Need to handle more http statuses
-	if resp.StatusCode == http.StatusOK {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
 		_ = json.Unmarshal(body, &responseData)
 		return responseData, nil
 	}
-
 	return responseData, errors.New("agggghhh panic")
 }

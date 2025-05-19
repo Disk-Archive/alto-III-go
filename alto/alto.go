@@ -1,8 +1,8 @@
 package alto
 
 import (
-	"errors"
 	"fmt"
+	"github.com/Disk-Archive/alto-III-go/groups"
 	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/Disk-Archive/alto-III-go/meta_data"
 )
@@ -13,12 +13,13 @@ type AltoIII struct {
 
 	IgnoreSslErrors bool
 
+	Groups   *groups.Groups
 	MetaData *meta_data.MetaData
 }
 
-func New(hostname string, port int, ignoreSsl bool) (altoIII *AltoIII, err error) {
+func New(hostname string, port int, ignoreSsl bool) (altoIII *AltoIII) {
 	if port < 0 || port > 65535 {
-		return nil, errors.New("port out of range 0-65535")
+		return nil
 	}
 
 	return &AltoIII{
@@ -30,7 +31,8 @@ func New(hostname string, port int, ignoreSsl bool) (altoIII *AltoIII, err error
 				Hostname: hostname,
 			},
 		},
-	}, nil
+		Groups: groups.New(hostname),
+	}
 }
 
 func (a *AltoIII) ArchiveObject(diskId, objectName, md5 string, data []byte) (err error) {
