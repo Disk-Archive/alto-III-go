@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// PipedStringToSlice parses the output returned from prometheus into a slice
-func AltoStringToSlice(PipedString string) (parsedList []string, err error) {
+// ParseAltoResponse parses the output returned from prometheus into a slice
+func ParseAltoResponse(PipedString string) (parsedList []string, err error) {
 
 	parsedList = strings.Split(PipedString, "|")
 

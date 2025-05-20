@@ -18,6 +18,6 @@ func (a *AltoIII) GetSerialNumber() (altoSerial string) {
 
 func (a *AltoIII) GetGroups() (groupsList []string, err error) {
 	res, _ := a.sendTcp("get|groups", time.Second*5)
-	groupsList, err = AltoStringToSlice(res)
+	groupsList, err = ParseAltoResponse(res)
 	return
 }
