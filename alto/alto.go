@@ -37,7 +37,7 @@ func New(hostname string, port int, ignoreSsl bool) (altoIII *AltoIII) {
 
 func (a *AltoIII) ArchiveObject(diskId, objectName, md5 string, data []byte) (err error) {
 	_, err = http.Post[interface{}](
-		a.Hostname, fmt.Sprintf("/api/v1/copy/archive/object/%s?location=%s", diskId, objectName), "", data,
+		a.Hostname, fmt.Sprintf("/api/v1/copy/archive/object/%s?location=%s", diskId, objectName), md5, data,
 	)
 	return
 }
