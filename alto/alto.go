@@ -44,7 +44,7 @@ func (a *AltoIII) ArchiveObject(diskId, objectName, md5 string, data []byte) (er
 
 func (a *AltoIII) DeleteObject(diskId, objectName string) (err error) {
 	_, err = http.Delete[interface{}](
-		a.Hostname, fmt.Sprintf("/api/v1/copy/delete/%s?location=%s", diskId, objectName),
+		a.Hostname, fmt.Sprintf("/api/v1/copy/delete/object/%s?location=%s", diskId, objectName),
 	)
 	return
 }
