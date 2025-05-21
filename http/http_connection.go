@@ -19,7 +19,7 @@ func Delete[T any](hostname, url string) (responseData T, err error) {
 }
 
 func Post[T any](hostname, url, md5 string, data []byte) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", "", data, true)
+	return request[T](hostname, url, "POST", "application/json", md5, data, true)
 }
 
 func request[T any](hostname, url, method, contentType, md5 string, data []byte, insecure bool) (responseData T, err error) {
