@@ -11,24 +11,25 @@ import (
 )
 
 func Get[T any](hostname, url string) (responseData T, err error) {
-	return request[T](hostname, url, "GET", "application/octet-stream", nil, true)
+	return request[T](hostname, url, "GET", "application/octet-stream", "", nil, true)
 }
 
 func Delete[T any](hostname, url string) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", nil, true)
+	return request[T](hostname, url, "DELETE", "application/octet-stream", "", nil, true)
 }
 
-func Post[T any](hostname, url string, data []byte) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", data, true)
+func Post[T any](hostname, url, md5 string, data []byte) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/json", "", data, true)
 }
 
-func request[T any](hostname, url, method, contentType string, data []byte, insecure bool) (responseData T, err error) {
+func request[T any](hostname, url, method, contentType, md5 string, data []byte, insecure bool) (responseData T, err error) {
 	req, err := http.NewRequest(method, fmt.Sprintf("https://%s%s", hostname, url), bytes.NewReader(data))
 	if err != nil {
 		return
 	}
 
 	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("md5hash", md5)
 
 	client := &http.Client{
 		Transport: &http.Transport{
