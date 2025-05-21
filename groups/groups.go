@@ -29,7 +29,7 @@ func New(hostname string) (groups *Groups) {
 
 func (g *Groups) CreateGroup(group *Group) (err error) {
 	data, err := json.Marshal(group)
-	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", data)
+	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", data)
 	return err
 }
 
