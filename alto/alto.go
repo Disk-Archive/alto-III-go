@@ -21,3 +21,27 @@ func (a *AltoIII) GetGroups() (groupsList []string, err error) {
 	groupsList, err = ParseAltoResponse(res)
 	return
 }
+
+func (a *AltoIII) GetNetworkDetails() (networkDetails *Network, err error) {
+	res, _ := a.sendTcp("get|network_address", time.Second*5)
+	resArr, err := ParseAltoResponse(res)
+	if err != nil {
+		return nil, err
+	}
+	networkDetails = &Network{
+		Ip:            resArr[1],
+		Netmask:       resArr[2],
+		Gateway:       resArr[3],
+		InterfaceName: resArr[4],
+	}
+	return
+}
+
+func (a *AltoIII) GetPrometheusConfig() (config *string, err error) {
+	res, _ := a.sendTcp("get|prm_file|prometheus|config", time.Second*5)
+	resArr, err := ParseAltoResponse(res)
+	if err != nil {
+		return nil, err
+	}
+	return &resArr[1], err
+}
