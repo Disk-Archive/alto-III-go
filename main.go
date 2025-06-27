@@ -56,4 +56,18 @@ func main() {
 	} else {
 		fmt.Printf("prometheus config: %v\n", *prmConfig)
 	}
+
+	prmDb, err := a.GetPrometheusDb()
+	if err != nil {
+		log.Printf("promethes DB: %v\n", err)
+	} else {
+		fmt.Printf("prometheus DB: %v\n", *prmDb)
+	}
+
+	smartData, err := a.GetSmartDataByDiskUuid("66eca1d7-d785-45e6-8945-fb2a6e318a78")
+	if err != nil {
+		log.Printf("smartData: %v\n", err)
+	} else {
+		fmt.Printf("smartData: %v\n", *smartData)
+	}
 }
