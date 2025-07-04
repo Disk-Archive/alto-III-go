@@ -1,6 +1,10 @@
 package alto
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 type AltoIII struct {
 	TcpConnection
@@ -39,6 +43,26 @@ func (a *AltoIII) GetNetworkDetails() (networkDetails *Network, err error) {
 
 func (a *AltoIII) GetPrometheusConfig() (config *string, err error) {
 	res, _ := a.sendTcp("get|prm_file|prometheus|config", time.Second*5)
+	resArr, err := ParseAltoResponse(res)
+	if err != nil {
+		return nil, err
+	}
+	return &resArr[1], err
+}
+
+func (a *AltoIII) GetPrometheusDb() (config *string, err error) {
+	res, _ := a.sendTcp("get|db", time.Second*5)
+
+	if strings.HasPrefix(res, "<?xml") {
+		return &res, nil
+	}
+
+	return nil, fmt.Errorf("error getting prometheus DB %v: ", res)
+}
+
+func (a *AltoIII) GetSmartDataByDiskUuid(uuid string) (config *string, err error) {
+	cmd := fmt.Sprintf("get|disk_smart_data|%s", uuid)
+	res, _ := a.sendTcp(cmd, time.Second*5)
 	resArr, err := ParseAltoResponse(res)
 	if err != nil {
 		return nil, err
