@@ -1,4 +1,4 @@
-module github.com/Disk-Archive/alto-III-go
+module alto-III-go
 
 go 1.23.2
 
