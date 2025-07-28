@@ -4,7 +4,7 @@
 package main
 
 import (
-	"github.com/Disk-Archive/alto-III-go/disk"
+	"github.com/Disk-Archive/alto-III-go/disk_data"
 	"github.com/Disk-Archive/alto-III-go/file_data"
 	"github.com/google/uuid"
 )
@@ -32,7 +32,7 @@ func main() {
 		println(file.Filename)
 	}
 
-	DiskApi := disk.DiskAPI{
+	DiskApi := disk_data.DiskAPI{
 		Hostname: "192.168.39.95",
 		Port:     443,
 	}

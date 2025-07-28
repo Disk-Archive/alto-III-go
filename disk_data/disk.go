@@ -1,4 +1,4 @@
-package disk
+package disk_data
 
 import (
 	"fmt"
