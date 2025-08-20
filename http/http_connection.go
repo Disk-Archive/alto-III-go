@@ -10,20 +10,27 @@ import (
 	"net/http"
 )
 
-func Get[T any](hostname, url string) (responseData T, err error) {
-	return request[T](hostname, url, "GET", "application/octet-stream", "", nil, true)
+func Get[T any](hostname, url string, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "GET", "application/octet-stream", "", nil, true, useSsl)
 }
 
-func Delete[T any](hostname, url string) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", "", nil, true)
+func Delete[T any](hostname, url string, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "DELETE", "application/octet-stream", "", nil, true, useSsl)
 }
 
-func Post[T any](hostname, url, md5 string, data []byte) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", md5, data, true)
+func Post[T any](hostname, url, md5 string, data []byte, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/json", md5, data, true, useSsl)
 }
 
-func request[T any](hostname, url, method, contentType, md5 string, data []byte, insecure bool) (responseData T, err error) {
-	req, err := http.NewRequest(method, fmt.Sprintf("https://%s%s", hostname, url), bytes.NewReader(data))
+func request[T any](hostname, url, method, contentType, md5 string, data []byte, useSsl, insecure bool) (responseData T, err error) {
+	var uri string
+	if useSsl {
+		uri = fmt.Sprintf("https://%s%s", hostname, url)
+	} else {
+		uri = fmt.Sprintf("http://%s%s", hostname, url)
+	}
+
+	req, err := http.NewRequest(method, uri, bytes.NewReader(data))
 	if err != nil {
 		return
 	}
