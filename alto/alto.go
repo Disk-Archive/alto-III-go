@@ -45,6 +45,11 @@ func (a *AltoIII) ArchiveObject(groupId, diskId, objectName, md5 string, data []
 	return
 }
 
+func (a *AltoIII) RestoreObject(groupId, diskId, objectName, md5 string) (fileBytes []byte, err error) {
+	fileBytes, err = http.Get[[]byte](a.Hostname, fmt.Sprintf("/api/v1/copy/restore/object?location=%s&disk_id=%s&group_id=%s", objectName, diskId, groupId), a.UseSsl)
+	return
+}
+
 func (a *AltoIII) DeleteObject(objectId string) (err error) {
 	_, err = http.Delete[interface{}](
 		a.Hostname, fmt.Sprintf("/api/v1/copy/delete/object/%s", objectId), a.UseSsl,
