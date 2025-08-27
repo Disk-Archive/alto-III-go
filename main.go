@@ -70,4 +70,11 @@ func main() {
 	} else {
 		fmt.Printf("smartData: %v\n", *smartData)
 	}
+
+	chassis, err := a.GetChassis()
+	if err != nil {
+		log.Printf("chassis: %v\n", err)
+	} else {
+		fmt.Printf("chassis: %v\n", chassis)
+	}
 }
