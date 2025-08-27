@@ -44,6 +44,9 @@ func New(hostname string, port int, username, password string, useSsl, ignoreSsl
 			Object: &meta_data.Object{
 				Hostname: hostname,
 				UseSsl:   useSsl,
+				Credentials: &meta_data.AltoBasicAuthCredentials{
+					Username: username, Password: password,
+				},
 			},
 		},
 		Groups: groups.New(hostname, username, password, useSsl),
