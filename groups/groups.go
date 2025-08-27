@@ -11,6 +11,8 @@ type (
 		Hostname string
 		Groups   []Group
 		UseSsl   bool
+
+		Credentials *AltoBasicAuthCredentials
 	}
 
 	Group struct {
@@ -19,13 +21,21 @@ type (
 		CreatedAt time.Time `json:"created_at"`
 
 		useSsl bool
+
+		Credentials *AltoBasicAuthCredentials
+	}
+
+	AltoBasicAuthCredentials struct {
+		Username string
+		Password string
 	}
 )
 
-func New(hostname string, useSsl bool) (groups *Groups) {
+func New(hostname string, username, password string, useSsl bool) (groups *Groups) {
 	groups = &Groups{
-		Hostname: hostname,
-		UseSsl:   useSsl,
+		Hostname:    hostname,
+		UseSsl:      useSsl,
+		Credentials: &AltoBasicAuthCredentials{Username: username, Password: password},
 	}
 	groups.Groups, _ = groups.GetGroups()
 	return
@@ -33,11 +43,11 @@ func New(hostname string, useSsl bool) (groups *Groups) {
 
 func (g *Groups) CreateGroup(group *Group) (err error) {
 	data, err := json.Marshal(group)
-	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", data, g.UseSsl)
+	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", g.Credentials.Username, g.Credentials.Password, data, g.UseSsl)
 	return err
 }
 
 func (g *Groups) GetGroups() (groups []Group, err error) {
-	result, err := http.Get[[]Group](g.Hostname, "/api/v1/groups", g.UseSsl)
+	result, err := http.Get[[]Group](g.Hostname, "/api/v1/groups", g.Credentials.Username, g.Credentials.Password, g.UseSsl)
 	return result, err
 }

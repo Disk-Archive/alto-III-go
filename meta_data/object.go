@@ -10,7 +10,9 @@ import (
 type (
 	Object struct {
 		Hostname string
-		UseSsl   bool
+
+		Credentials *AltoBasicAuthCredentials
+		UseSsl      bool
 	}
 
 	ObjectMetaData struct {
@@ -29,14 +31,21 @@ type (
 		Sha256ChecksumCalculationDate time.Time `json:"sha256_checksum_calculation_date"`
 		PreCopyMd5Hash                string    `json:"pre_copy_md5_hash"`
 
+		Credentials *AltoBasicAuthCredentials
+
 		useSsl bool
+	}
+
+	AltoBasicAuthCredentials struct {
+		Username string
+		Password string
 	}
 )
 
 func (o *Object) GetAll() (objects []*ObjectMetaData, err error) {
-	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata", o.UseSsl)
+	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata", o.Credentials.Username, o.Credentials.Password, o.UseSsl)
 }
 
 func (o *Object) GetObjectByName(objectName string) (object *ObjectMetaData, err error) {
-	return http.Get[*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata?object_name=%s", objectName), o.UseSsl)
+	return http.Get[*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata?object_name=%s", objectName), o.Credentials.Username, o.Credentials.Password, o.UseSsl)
 }

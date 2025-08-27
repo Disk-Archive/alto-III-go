@@ -10,19 +10,19 @@ import (
 	"net/http"
 )
 
-func Get[T any](hostname, url string, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "GET", "application/octet-stream", "", nil, true, useSsl)
+func Get[T any](hostname, url string, username, password string, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, nil, true, useSsl)
 }
 
-func Delete[T any](hostname, url string, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", "", nil, true, useSsl)
+func Delete[T any](hostname, url string, username, password string, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, nil, true, useSsl)
 }
 
-func Post[T any](hostname, url, md5 string, data []byte, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", md5, data, true, useSsl)
+func Post[T any](hostname, url, md5 string, username, password string, data []byte, useSsl bool) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/json", md5, username, password, data, true, useSsl)
 }
 
-func request[T any](hostname, url, method, contentType, md5 string, data []byte, useSsl, insecure bool) (responseData T, err error) {
+func request[T any](hostname, url, method, contentType, md5 string, username, password string, data []byte, useSsl, insecure bool) (responseData T, err error) {
 	var uri string
 	if useSsl {
 		uri = fmt.Sprintf("https://%s%s", hostname, url)
@@ -34,6 +34,8 @@ func request[T any](hostname, url, method, contentType, md5 string, data []byte,
 	if err != nil {
 		return
 	}
+
+	req.SetBasicAuth(username, password)
 
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("md5hash", md5)
