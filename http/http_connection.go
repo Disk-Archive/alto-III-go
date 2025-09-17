@@ -23,12 +23,7 @@ func Post[T any](hostname, url, md5 string, username, password string, data []by
 }
 
 func request[T any](hostname, url, method, contentType, md5 string, username, password string, data []byte, useSsl, insecure bool) (responseData T, err error) {
-	var uri string
-	if useSsl {
-		uri = fmt.Sprintf("https://%s%s", hostname, url)
-	} else {
-		uri = fmt.Sprintf("http://%s%s", hostname, url)
-	}
+	uri := FormatSslString(useSsl, hostname+url)
 
 	req, err := http.NewRequest(method, uri, bytes.NewReader(data))
 	if err != nil {
@@ -59,8 +54,15 @@ func request[T any](hostname, url, method, contentType, md5 string, username, pa
 
 	// ToDo: Need to handle more http statuses
 	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-		_ = json.Unmarshal(body, &responseData)
-		return responseData, nil
+		switch any(responseData).(type) {
+		case []byte:
+			return any(body).(T), nil
+		default:
+			if err := json.Unmarshal(body, &responseData); err != nil {
+				return responseData, err
+			}
+			return responseData, nil
+		}
 	}
-	return responseData, errors.New("agggghhh panic")
+	return responseData, errors.New(fmt.Sprintf("error in the http request: %v", err))
 }
