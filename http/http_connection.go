@@ -10,16 +10,16 @@ import (
 	"net/http"
 )
 
-func Get[T any](hostname, url string, username, password string, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, nil, true, useSsl)
+func Get[T any](hostname, url string, username, password string, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, nil, useSsl, insecure)
 }
 
-func Delete[T any](hostname, url string, username, password string, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, nil, true, useSsl)
+func Delete[T any](hostname, url string, username, password string, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, nil, useSsl, insecure)
 }
 
-func Post[T any](hostname, url, md5 string, username, password string, data []byte, useSsl bool) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", md5, username, password, data, true, useSsl)
+func Post[T any](hostname, url, md5 string, username, password string, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/json", md5, username, password, data, useSsl, insecure)
 }
 
 func request[T any](hostname, url, method, contentType, md5 string, username, password string, data []byte, useSsl, insecure bool) (responseData T, err error) {
