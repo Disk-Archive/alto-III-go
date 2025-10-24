@@ -2,6 +2,7 @@ package alto
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -68,4 +69,70 @@ func (a *AltoIII) GetSmartDataByDiskUuid(uuid string) (config *string, err error
 		return nil, err
 	}
 	return &resArr[1], err
+}
+
+func (a *AltoIII) GetChassis() ([]Chassis, error) {
+	// Get total number of chassis
+	res, _ := a.sendTcp("get|chassis|count", time.Second*5)
+	resArr, err := ParseAltoResponse(res)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chassis count: %v", err)
+	}
+
+	chassisCount, err := strconv.Atoi(resArr[1])
+	if err != nil {
+		return nil, fmt.Errorf("invalid chassis count value: %v", resArr[1])
+	}
+
+	chassisList := make([]Chassis, 0, chassisCount)
+
+	// Loop through chassis indexes and build struct
+	for i := 0; i < chassisCount; i++ {
+		parseField := func(cmd string) (int, error) {
+			fieldRes, _ := a.sendTcp(cmd, time.Second*5)
+			fieldArr, err := ParseAltoResponse(fieldRes)
+			if err != nil {
+				return 0, fmt.Errorf("failed to parse command '%s': %v", cmd, err)
+			}
+
+			val, convErr := strconv.Atoi(fieldArr[1])
+			if convErr != nil {
+				return 0, fmt.Errorf("invalid integer from '%s': %v", cmd, fieldArr[1])
+			}
+			return val, nil
+		}
+
+		rows, err := parseField(fmt.Sprintf("get|chassis|rows|%d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		firstSlot, err := parseField(fmt.Sprintf("get|chassis|first_slot|%d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		lastSlot, err := parseField(fmt.Sprintf("get|chassis|last_slot|%d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		totalSlots, err := parseField(fmt.Sprintf("get|chassis|total_slots|%d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		layout, activeSlots := ChassisSlotLayoutGet(totalSlots)
+
+		chassisList = append(chassisList, Chassis{
+			TotalSlots:  totalSlots,
+			ActiveSlots: activeSlots,
+			Rows:        rows,
+			FirstSlot:   firstSlot,
+			LastSlot:    lastSlot,
+			Layout:      layout,
+		})
+	}
+
+	return chassisList, nil
 }
