@@ -10,20 +10,25 @@ import (
 	"net/http"
 )
 
-func Get[T any](hostname, url string, username, password string, useSsl bool, insecure bool) (responseData T, err error) {
-	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, nil, useSsl, insecure)
+func Get[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, port, nil, useSsl, insecure)
 }
 
-func Delete[T any](hostname, url string, username, password string, useSsl bool, insecure bool) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, nil, useSsl, insecure)
+func Delete[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, port, nil, useSsl, insecure)
 }
 
-func Post[T any](hostname, url, md5 string, username, password string, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", md5, username, password, data, useSsl, insecure)
+func Post[T any](hostname, url, md5, username, password string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "POST", "application/json", md5, username, password, port, data, useSsl, insecure)
 }
 
-func request[T any](hostname, url, method, contentType, md5 string, username, password string, data []byte, useSsl, insecure bool) (responseData T, err error) {
-	uri := FormatSslString(useSsl, hostname+url)
+func Patch[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "PATCH", "application/json", "", username, password, port, nil, useSsl, insecure)
+}
+
+func request[T any](hostname, url, method, contentType, md5, username, password string, port int, data []byte, useSsl, insecure bool) (responseData T, err error) {
+
+	uri := FormatSslString(useSsl, fmt.Sprintf("%s:%d%s", hostname, port, url))
 
 	req, err := http.NewRequest(method, uri, bytes.NewReader(data))
 	if err != nil {

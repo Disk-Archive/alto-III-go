@@ -48,19 +48,19 @@ func (d *DiskAPI) GetAllDisks() ([]Disk, error) {
 	type res struct {
 		Disks []Disk `json:"disks"`
 	}
-	data, err := http.Get[res](d.Hostname, "/api/v1/disk", d.Credentials.Username, d.Credentials.Password, true, true)
+	data, err := http.Get[res](d.Hostname, "/api/v1/disk", d.Credentials.Username, d.Credentials.Password, d.Port, true, true)
 	return data.Disks, err
 }
 
 func (d *DiskAPI) GetDiskById(id uuid.UUID) (disk Disk, err error) {
-	return http.Get[Disk](d.Hostname, fmt.Sprintf("/api/v1/disk/%s", id), d.Credentials.Username, d.Credentials.Password, true, true)
+	return http.Get[Disk](d.Hostname, fmt.Sprintf("/api/v1/disk/%s", id), d.Credentials.Username, d.Credentials.Password, d.Port, true, true)
 }
 
 func (d *DiskAPI) BringDiskOnline(diskId uuid.UUID) (mountPoint string, err error) {
 	type Response struct {
 		MountPoint string `json:"mount_path"`
 	}
-	result, err := http.Get[Response](d.Hostname, fmt.Sprintf("/api/v1/disk/online/%s", diskId), d.Credentials.Username, d.Credentials.Password, true, true)
+	result, err := http.Get[Response](d.Hostname, fmt.Sprintf("/api/v1/disk/online/%s", diskId), d.Credentials.Username, d.Credentials.Password, d.Port, true, true)
 	return result.MountPoint, err
 }
 
@@ -68,6 +68,6 @@ func (d *DiskAPI) TakeDiskOffline(diskId uuid.UUID) (err error) {
 	type Response struct {
 		Message string `json:"message"`
 	}
-	_, err = http.Get[Response](d.Hostname, fmt.Sprintf("/api/v1/disk/offline/%s", diskId), d.Credentials.Username, d.Credentials.Password, true, true)
+	_, err = http.Get[Response](d.Hostname, fmt.Sprintf("/api/v1/disk/offline/%s", diskId), d.Credentials.Username, d.Credentials.Password, d.Port, true, true)
 	return err
 }

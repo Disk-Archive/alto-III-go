@@ -44,14 +44,14 @@ func New(host string, port int) *FileAPI {
 
 func (f *FileAPI) GetFilesByGroup(groupId uuid.UUID) (file []File, err error) {
 
-	res, err := http.Get[[]File](f.Hostname, fmt.Sprintf("/api/v1/file/by-group-id/%s", groupId), f.Credentials.Username, f.Credentials.Password, true, true)
+	res, err := http.Get[[]File](f.Hostname, fmt.Sprintf("/api/v1/file/by-group-id/%s", groupId), f.Credentials.Username, f.Credentials.Password, f.Port, true, true)
 
 	return res, nil
 }
 
 func (f *FileAPI) GetAllFiles() (file []File, err error) {
 
-	res, err := http.Get[[]File](f.Hostname, "/api/v1/file/file_metadata", f.Credentials.Username, f.Credentials.Password, true, true)
+	res, err := http.Get[[]File](f.Hostname, "/api/v1/file/file_metadata", f.Credentials.Username, f.Credentials.Password, f.Port, true, true)
 
 	return res, nil
 }
