@@ -9,6 +9,7 @@ import (
 type (
 	Groups struct {
 		Hostname string
+		Port     int
 		Groups   []Group
 		UseSsl   bool
 
@@ -31,9 +32,10 @@ type (
 	}
 )
 
-func New(hostname string, username, password string, useSsl bool) (groups *Groups) {
+func New(hostname, username, password string, port int, useSsl bool) (groups *Groups) {
 	groups = &Groups{
 		Hostname:    hostname,
+		Port:        port,
 		UseSsl:      useSsl,
 		Credentials: &AltoBasicAuthCredentials{Username: username, Password: password},
 	}
@@ -43,11 +45,11 @@ func New(hostname string, username, password string, useSsl bool) (groups *Group
 
 func (g *Groups) CreateGroup(group *Group) (err error) {
 	data, err := json.Marshal(group)
-	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", g.Credentials.Username, g.Credentials.Password, data, g.UseSsl, true)
+	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", g.Credentials.Username, g.Credentials.Password, g.Port, data, g.UseSsl, true)
 	return err
 }
 
 func (g *Groups) GetGroups() (groups []Group, err error) {
-	result, err := http.Get[[]Group](g.Hostname, "/api/v1/groups", g.Credentials.Username, g.Credentials.Password, g.UseSsl, true)
+	result, err := http.Get[[]Group](g.Hostname, "/api/v1/groups", g.Credentials.Username, g.Credentials.Password, g.Port, g.UseSsl, true)
 	return result, err
 }

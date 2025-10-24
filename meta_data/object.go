@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/google/uuid"
+	"net/url"
 	"time"
 )
 
 type (
 	Object struct {
 		Hostname string
+		Port     int
 
 		Credentials    *AltoBasicAuthCredentials
 		UseSsl         bool
@@ -44,13 +46,13 @@ type (
 )
 
 func (o *Object) GetAll() (objects []*ObjectMetaData, err error) {
-	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata", o.Credentials.Username, o.Credentials.Password, o.UseSsl, o.InsecureSslReq)
+	return http.Get[[]*ObjectMetaData](o.Hostname, "/api/v1/object/object_metadata", o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
 }
 
 func (o *Object) GetObjectByName(objectName string) (object *ObjectMetaData, err error) {
-	return http.Get[*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata?object_name=%s", objectName), o.Credentials.Username, o.Credentials.Password, o.UseSsl, o.InsecureSslReq)
+	return http.Get[*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata?object_name=%s", url.QueryEscape(objectName)), o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
 }
 
 func (o *Object) GetObjectsByBucketId(BucketId uuid.UUID) (objects []*ObjectMetaData, err error) {
-	return http.Get[[]*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata/by_bucket_id?bucket_id=%s", BucketId.String()), o.Credentials.Username, o.Credentials.Password, o.UseSsl, o.InsecureSslReq)
+	return http.Get[[]*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata/by_bucket_id?bucket_id=%s", BucketId.String()), o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
 }
