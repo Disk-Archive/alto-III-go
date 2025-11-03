@@ -4,13 +4,15 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 )
 
 func Get[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
+	if err != nil {
+		fmt.Printf("Get: %v\n", err.Error())
+	}
 	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, port, nil, useSsl, insecure)
 }
 
@@ -69,5 +71,23 @@ func request[T any](hostname, url, method, contentType, md5, username, password 
 			return responseData, nil
 		}
 	}
-	return responseData, errors.New(fmt.Sprintf("error in the http request: %v", err))
+
+	// NOTE: some times the files is created in the db but not in the filesystem
+	if resp.StatusCode == http.StatusNotFound {
+		return responseData, fmt.Errorf("404")
+	}
+
+	if resp.StatusCode == http.StatusInternalServerError {
+		// Try to parse the body for message info
+		var errResp map[string]interface{}
+		if err := json.Unmarshal(body, &errResp); err == nil {
+			if msg, ok := errResp["message"].(string); ok {
+				return responseData, fmt.Errorf("500: %s", msg)
+			}
+		}
+		// Fallback: return raw body if not JSON
+		return responseData, fmt.Errorf("500: %s", string(body))
+	}
+
+	return responseData, fmt.Errorf("error in the http request: %v", err)
 }

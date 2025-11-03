@@ -65,6 +65,9 @@ func (a *AltoIII) ArchiveObject(groupId, diskId, objectName, md5 string, data []
 }
 
 func (a *AltoIII) RestoreObject(groupId, diskId, objectName, md5 string) (fileBytes []byte, err error) {
+	if err != nil {
+		fmt.Printf("RestoreObject: %v\n", err.Error())
+	}
 	fileBytes, err = http.Get[[]byte](a.Hostname, fmt.Sprintf("/api/v1/copy/restore/object?location=%s&disk_id=%s&group_id=%s", url.QueryEscape(objectName), diskId, groupId), a.Credentials.Username, a.Credentials.Password, a.Port, a.UseSsl, a.InsecureSslReq)
 	return
 }
@@ -76,9 +79,21 @@ func (a *AltoIII) DeleteObject(objectId string) (err error) {
 	return
 }
 
-func (a *AltoIII) CopyObject(sPath, dPath string, sBucket, dBucket uuid.UUID) (err error) {
-	_, err = http.Patch[interface{}](
-		a.Hostname, fmt.Sprintf("/api/v1/copy/copy/object?s_path=%s&d_path=%s&s_bucket_id=%s&d_bucket_id=%s", url.QueryEscape(sPath), url.QueryEscape(dPath), sBucket, dBucket), a.Credentials.Username, a.Credentials.Password, a.Port, a.UseSsl, a.InsecureSslReq,
+func (a *AltoIII) CopyObject(sPath, dPath string, sBucket, dBucket uuid.UUID) error {
+	params := url.Values{}
+	params.Set("s_path", sPath)
+	params.Set("d_path", dPath)
+	params.Set("s_bucket_id", sBucket.String())
+	params.Set("d_bucket_id", dBucket.String())
+
+	_, err := http.Patch[interface{}](
+		a.Hostname,
+		fmt.Sprintf("/api/v1/copy/copy/object?%s", params.Encode()),
+		a.Credentials.Username,
+		a.Credentials.Password,
+		a.Port,
+		a.UseSsl,
+		a.InsecureSslReq,
 	)
-	return
+	return err
 }
