@@ -1,7 +1,6 @@
 package meta_data
 
 import (
-	"alto/libraries/s3"
 	"encoding/json"
 	"fmt"
 	"github.com/Disk-Archive/alto-III-go/http"
@@ -25,7 +24,7 @@ func (o *Object) PutObjectTags(bucketId uuid.UUID, key string, tagSet S3TagSet) 
 	return err
 }
 
-func (o *Object) GetObjectTags(bucketId uuid.UUID, key string) ([]s3.Tag, error) {
+func (o *Object) GetObjectTags(bucketId uuid.UUID, key string) ([]S3Tag, error) {
 
 	params := url.Values{}
 	params.Set("bucket_id", bucketId.String())
@@ -35,7 +34,7 @@ func (o *Object) GetObjectTags(bucketId uuid.UUID, key string) ([]s3.Tag, error)
 
 	// Expected response: {"tags": []}
 	type tagsResponse struct {
-		Tags []s3.Tag `json:"tags"`
+		Tags []S3Tag `json:"tags"`
 	}
 
 	resp, err := http.Get[*tagsResponse](o.Hostname, query, o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
