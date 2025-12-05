@@ -56,3 +56,17 @@ func (o *Object) GetObjectByName(objectName string) (object *ObjectMetaData, err
 func (o *Object) GetObjectsByBucketId(BucketId uuid.UUID) (objects []*ObjectMetaData, err error) {
 	return http.Get[[]*ObjectMetaData](o.Hostname, fmt.Sprintf("/api/v1/object/object_metadata/by_bucket_id?bucket_id=%s", BucketId.String()), o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
 }
+
+func (o *Object) GetObjectMetaDataFiltered(bucketId uuid.UUID, prefix, startAfter string, maxKeysStr int) (objects []*ObjectMetaData, err error) {
+
+	params := url.Values{}
+	params.Set("bucket_id", bucketId.String())
+	params.Set("prefix", prefix)
+	params.Set("start_after", startAfter)
+	params.Set("max_keys", string(maxKeysStr))
+
+	query := fmt.Sprintf("/api/v1/object/object_metadata/filtered?%s", params.Encode())
+
+	return http.Get[[]*ObjectMetaData](o.Hostname, query, o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
+
+}
