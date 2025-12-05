@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 func Get[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
@@ -22,6 +23,10 @@ func Delete[T any](hostname, url, username, password string, port int, useSsl bo
 
 func Post[T any](hostname, url, md5, username, password string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
 	return request[T](hostname, url, "POST", "application/json", md5, username, password, port, data, useSsl, insecure)
+}
+
+func Put[T any](hostname, url, username, password string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "PUT", "application/json", "", username, password, port, data, useSsl, insecure)
 }
 
 func Patch[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
@@ -44,7 +49,10 @@ func request[T any](hostname, url, method, contentType, md5, username, password 
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
+			TLSClientConfig:   &tls.Config{InsecureSkipVerify: insecure},
+			DisableKeepAlives: true,
+			IdleConnTimeout:   time.Second * 5,
+			MaxIdleConns:      50,
 		},
 	}
 
@@ -58,6 +66,10 @@ func request[T any](hostname, url, method, contentType, md5, username, password 
 	if err != nil {
 		return
 	}
+
+	//close connection right after the reading the body
+	io.Copy(io.Discard, resp.Body) //this discard the body
+	client.Transport.(*http.Transport).CloseIdleConnections()
 
 	// ToDo: Need to handle more http statuses
 	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
