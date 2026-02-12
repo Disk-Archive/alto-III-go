@@ -1,11 +1,13 @@
 package alto
 
 import (
+	"context"
 	"fmt"
 	"github.com/Disk-Archive/alto-III-go/groups"
 	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/Disk-Archive/alto-III-go/meta_data"
 	"github.com/google/uuid"
+	"io"
 	"net/url"
 )
 
@@ -57,6 +59,19 @@ func New(hostname string, port int, username, password string, useSsl, insecureS
 	}
 }
 
+func (a *AltoIII) ArchiveObject2(ctx context.Context, diskId, objectName, md5 string, contentLength int64, groupId, bucketId uuid.UUID, r io.Reader) (err error) {
+
+	params := url.Values{}
+	params.Set("disk_id", diskId)
+	params.Set("location", objectName)
+	params.Set("group_id", groupId.String())
+	params.Set("bucket_id", bucketId.String())
+
+	query := fmt.Sprintf("/api/v1/copy/archive/object?%s", params.Encode())
+
+	return http.UploadStream[interface{}](ctx, a.Hostname, query, "POST", "application/octet-stream", md5, a.Credentials.Username, a.Credentials.Password, contentLength, a.Port, r, a.UseSsl, a.InsecureSslReq)
+}
+
 func (a *AltoIII) ArchiveObject(groupId, diskId, objectName, md5 string, data []byte, bucketId uuid.UUID) (err error) {
 	_, err = http.Post[interface{}](
 		a.Hostname, fmt.Sprintf("/api/v1/copy/archive/object?location=%s&disk_id=%s&group_id=%s&bucket_id=%s", url.QueryEscape(objectName), diskId, groupId, bucketId), md5, a.Credentials.Username, a.Credentials.Password, a.Port, data, a.UseSsl, a.InsecureSslReq,
@@ -64,10 +79,19 @@ func (a *AltoIII) ArchiveObject(groupId, diskId, objectName, md5 string, data []
 	return
 }
 
+func (a *AltoIII) RestoreObject2(ctx context.Context, bucketId uuid.UUID, objectName string) (r io.ReadCloser, err error) {
+
+	params := url.Values{}
+	params.Set("bucket_id", bucketId.String())
+	params.Set("object_name", objectName)
+
+	query := fmt.Sprintf("/api/v1/copy/restore/object?%s", params.Encode())
+
+	r, err = http.DownloadStream[interface{}](ctx, a.Hostname, query, "GET", "application/json", a.Credentials.Username, a.Credentials.Password, a.Port, a.UseSsl, a.InsecureSslReq)
+	return
+}
+
 func (a *AltoIII) RestoreObject(groupId, diskId, objectName, md5 string) (fileBytes []byte, err error) {
-	if err != nil {
-		fmt.Printf("RestoreObject: %v\n", err.Error())
-	}
 	fileBytes, err = http.Get[[]byte](a.Hostname, fmt.Sprintf("/api/v1/copy/restore/object?location=%s&disk_id=%s&group_id=%s", url.QueryEscape(objectName), diskId, groupId), a.Credentials.Username, a.Credentials.Password, a.Port, a.UseSsl, a.InsecureSslReq)
 	return
 }
