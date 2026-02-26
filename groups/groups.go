@@ -45,7 +45,7 @@ func New(hostname, username, password string, port int, useSsl bool) (groups *Gr
 
 func (g *Groups) CreateGroup(group *Group) (err error) {
 	data, err := json.Marshal(group)
-	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", g.Credentials.Username, g.Credentials.Password, g.Port, data, g.UseSsl, true)
+	_, err = http.Post[Group](g.Hostname, "/api/v1/groups/create", "", g.Credentials.Username, g.Credentials.Password, "application/json", g.Port, data, g.UseSsl, true)
 	return err
 }
 

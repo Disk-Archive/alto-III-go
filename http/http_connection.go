@@ -11,18 +11,15 @@ import (
 )
 
 func Get[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
-	if err != nil {
-		fmt.Printf("Get: %v\n", err.Error())
-	}
 	return request[T](hostname, url, "GET", "application/octet-stream", "", username, password, port, nil, useSsl, insecure)
 }
 
 func Delete[T any](hostname, url, username, password string, port int, useSsl bool, insecure bool) (responseData T, err error) {
-	return request[T](hostname, url, "DELETE", "application/octet-stream", "", username, password, port, nil, useSsl, insecure)
+	return request[T](hostname, url, "DELETE", "application/json", "", username, password, port, nil, useSsl, insecure)
 }
 
-func Post[T any](hostname, url, md5, username, password string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
-	return request[T](hostname, url, "POST", "application/json", md5, username, password, port, data, useSsl, insecure)
+func Post[T any](hostname, url, md5, username, password, contentType string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {
+	return request[T](hostname, url, "POST", contentType, md5, username, password, port, data, useSsl, insecure)
 }
 
 func Put[T any](hostname, url, username, password string, port int, data []byte, useSsl bool, insecure bool) (responseData T, err error) {

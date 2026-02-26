@@ -67,14 +67,16 @@ func (a *AltoIII) ArchiveObject2(ctx context.Context, diskId, objectName, md5 st
 	params.Set("group_id", groupId.String())
 	params.Set("bucket_id", bucketId.String())
 
-	query := fmt.Sprintf("/api/v1/copy/archive/object?%s", params.Encode())
+	query := "/api/v1/copy/archive/object?" + params.Encode()
 
-	return http.UploadStream[interface{}](ctx, a.Hostname, query, "POST", "application/octet-stream", md5, a.Credentials.Username, a.Credentials.Password, contentLength, a.Port, r, a.UseSsl, a.InsecureSslReq)
+	_, err = http.UploadStream(ctx, a.Hostname, query, "POST", "application/octet-stream", md5, a.Credentials.Username, a.Credentials.Password, contentLength, a.Port, r, a.UseSsl, a.InsecureSslReq)
+
+	return
 }
 
 func (a *AltoIII) ArchiveObject(groupId, diskId, objectName, md5 string, data []byte, bucketId uuid.UUID) (err error) {
 	_, err = http.Post[interface{}](
-		a.Hostname, fmt.Sprintf("/api/v1/copy/archive/object?location=%s&disk_id=%s&group_id=%s&bucket_id=%s", url.QueryEscape(objectName), diskId, groupId, bucketId), md5, a.Credentials.Username, a.Credentials.Password, a.Port, data, a.UseSsl, a.InsecureSslReq,
+		a.Hostname, fmt.Sprintf("/api/v1/copy/archive/object?location=%s&disk_id=%s&group_id=%s&bucket_id=%s", url.QueryEscape(objectName), diskId, groupId, bucketId), md5, a.Credentials.Username, a.Credentials.Password, "application/json", a.Port, data, a.UseSsl, a.InsecureSslReq,
 	)
 	return
 }
@@ -85,7 +87,7 @@ func (a *AltoIII) RestoreObject2(ctx context.Context, bucketId uuid.UUID, object
 	params.Set("bucket_id", bucketId.String())
 	params.Set("object_name", objectName)
 
-	query := fmt.Sprintf("/api/v1/copy/restore/object?%s", params.Encode())
+	query := "/api/v1/copy/restore/object?" + params.Encode()
 
 	r, err = http.DownloadStream[interface{}](ctx, a.Hostname, query, "GET", "application/json", a.Credentials.Username, a.Credentials.Password, a.Port, a.UseSsl, a.InsecureSslReq)
 	return

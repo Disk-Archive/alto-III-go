@@ -2,7 +2,6 @@ package meta_data
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Disk-Archive/alto-III-go/http"
 	"github.com/google/uuid"
 	"net/url"
@@ -13,7 +12,7 @@ func (o *Object) PutObjectTags(bucketId uuid.UUID, key string, tagSet S3TagSet) 
 	params.Set("bucket_id", bucketId.String())
 	params.Set("key", key)
 
-	query := fmt.Sprintf("/api/v1/object/tagging?%s", params.Encode())
+	query := "/api/v1/object/tagging?" + params.Encode()
 
 	body, err := json.Marshal(tagSet)
 	if err != nil {
@@ -30,7 +29,7 @@ func (o *Object) GetObjectTags(bucketId uuid.UUID, key string) ([]S3Tag, error) 
 	params.Set("bucket_id", bucketId.String())
 	params.Set("key", key)
 
-	query := fmt.Sprintf("/api/v1/object/tagging?" + params.Encode())
+	query := "/api/v1/object/tagging?" + params.Encode()
 
 	// Expected response: {"tags": []}
 	type tagsResponse struct {
@@ -52,7 +51,7 @@ func (o *Object) DeleteObjectTags(bucketId uuid.UUID, key string) error {
 	params.Set("bucket_id", bucketId.String())
 	params.Set("key", key)
 
-	query := fmt.Sprintf("/api/v1/object/tagging?" + params.Encode())
+	query := "/api/v1/object/tagging?" + params.Encode()
 
 	_, err := http.Delete[any](o.Hostname, query, o.Credentials.Username, o.Credentials.Password, o.Port, o.UseSsl, o.InsecureSslReq)
 
